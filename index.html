@@ -1395,28 +1395,28 @@ img{max-width:100%;display:block;}
       </defs>
 
       <!-- Wake ripples at the base -->
-      <ellipse class="fin-wake-ring" cx="10" cy="198" rx="10" ry="2.5"/>
-      <ellipse class="fin-wake-ring" cx="10" cy="198" rx="10" ry="2.5"/>
-      <ellipse class="fin-wake-ring" cx="10" cy="198" rx="10" ry="2.5"/>
+      <ellipse class="fin-wake-ring" cx="5" cy="194" rx="10" ry="2.5"/>
+      <ellipse class="fin-wake-ring" cx="5" cy="194" rx="10" ry="2.5"/>
+      <ellipse class="fin-wake-ring" cx="5" cy="194" rx="10" ry="2.5"/>
 
       <!--
-        Fin: straight near-vertical leading edge, single swept trailing curve.
-        Leading edge: (8,198) → (10,6)   almost vertical, tiny lean right
-        Trailing edge: (10,6) → (92,198)  single cubic sweep back
-        Control pts (38,55) and (68,145) give a gentle outward belly — not a dome.
+        Real dorsal fin shape:
+        - Leading edge curves slightly FORWARD (belly to the left) before sweeping up to tip
+        - Trailing edge sweeps back, then has a concave NOTCH near the base
+        Front base (5,194), tip (18,6), trailing notch base (82,194)
       -->
       <path fill="url(#fg)"
-        d="M 8 198
-           L 10 6
-           C 38 55, 68 145, 92 198
+        d="M 5 194
+           C 1 145, 5 75, 18 6
+           C 48 52, 80 128, 90 168
+           C 96 182, 86 192, 82 194
            Z"/>
 
-      <!-- Narrow highlight strip along leading edge -->
-      <path fill="rgba(255,255,255,0.28)"
-        d="M 8 198
-           L 10 6
-           L 14 20
-           L 12 198
+      <!-- Highlight on lit leading face -->
+      <path fill="rgba(255,255,255,0.22)"
+        d="M 5 194
+           C 1 145, 5 75, 18 6
+           C 14 30, 11 90, 10 194
            Z"/>
 
       <!-- Waterline -->
