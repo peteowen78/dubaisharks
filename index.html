@@ -117,29 +117,23 @@ img{max-width:100%;display:block;}
 }
 
 /* ===================== SHARK FIN SCROLL TRACKER ===================== */
-.fin-track{
-  position:fixed;
-  bottom:0;
-  left:0;
-  width:100%;
-  height:215px;
-  pointer-events:none;
-  z-index:998;
-  overflow:hidden;
-}
+/* Fin is a direct child of .hero; bottom value places it at the wave crest */
 .fin-swimmer{
   position:absolute;
-  bottom:0;
+  /* wave SVG viewBox height 120, displayed at ~8vw tall; crest peaks at ~65% from bottom */
+  bottom:calc(8vw * 0.65);
   left:0;
-  width:100px;
+  width:72px;
+  pointer-events:none;
+  z-index:4; /* above .hero-fin (z-index:3) */
   will-change:transform;
 }
 .fin-svg{
-  width:100px;
-  height:210px;
+  width:72px;
+  height:150px;
   display:block;
   overflow:visible;
-  filter:drop-shadow(0 -2px 6px rgba(0,85,255,0.9)) drop-shadow(0 1px 3px rgba(0,0,0,1));
+  filter:drop-shadow(0 -3px 8px rgba(0,85,255,1)) drop-shadow(0 1px 4px rgba(0,0,0,0.9));
 }
 .fin-wake-ring{
   fill:none;
@@ -153,7 +147,7 @@ img{max-width:100%;display:block;}
   0%{opacity:.85;}
   100%{opacity:0;transform:scale(1.9);}
 }
-@media(max-width:480px){.fin-track{display:none;}}
+@media(max-width:480px){.fin-swimmer{display:none;}}
 
 /* ===================== NAV ===================== */
 .navbar{
@@ -1131,7 +1125,28 @@ img{max-width:100%;display:block;}
   <div class="hero-fin">
     <svg viewBox="0 0 1440 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M0,120 L0,60 C240,10 420,100 720,40 C1020,-20 1240,90 1440,30 L1440,120 Z" fill="#0a0a0a"/>
-      <path d="M620,55 C660,5 700,5 745,45 C710,55 670,60 620,55 Z" fill="#0055ff" opacity="0.85"/>
+    </svg>
+  </div>
+  <!-- Shark fin swims left→right through the hero as you scroll — sits at the wave horizon -->
+  <div class="fin-swimmer" id="finSwimmer" aria-hidden="true">
+    <svg class="fin-svg" viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="fg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#d0e8ff" stop-opacity="0.95"/>
+          <stop offset="100%" stop-color="#4488cc" stop-opacity="0.88"/>
+        </linearGradient>
+      </defs>
+      <ellipse class="fin-wake-ring" cx="5" cy="188" rx="10" ry="2.5"/>
+      <ellipse class="fin-wake-ring" cx="5" cy="188" rx="10" ry="2.5"/>
+      <ellipse class="fin-wake-ring" cx="5" cy="188" rx="10" ry="2.5"/>
+      <path fill="url(#fg)"
+        d="M 5 188
+           C 1 140, 5 72, 18 6
+           C 48 50, 80 124, 90 162
+           C 96 176, 86 186, 82 188
+           Z"/>
+      <path fill="rgba(255,255,255,0.2)"
+        d="M 5 188 C 1 140, 5 72, 18 6 C 14 28, 10 86, 10 188 Z"/>
     </svg>
   </div>
 </header>
@@ -1361,71 +1376,6 @@ img{max-width:100%;display:block;}
   </div>
 </footer>
 
-<!-- SHARK FIN SCROLL TRACKER -->
-<div class="fin-track" id="finTrack" aria-hidden="true">
-  <div class="fin-swimmer" id="finSwimmer">
-    <!--
-      Shark dorsal fin — swimming right.
-      viewBox 0 0 65 128.
-      Front base (left)  x≈8,  y=120
-      Tip                x≈40, y=6     (sharp — angled slightly back like a swept wing)
-      Trailing base(right) x≈56, y=120
-      Leading edge: gentle leftward belly then sweeps up-right to tip
-      Trailing edge: steep near-straight drop from tip to base
-    -->
-    <!--
-      CORRECT shark fin geometry — swimming right.
-      KEY: tip must sit almost directly above the FRONT (left) base.
-      The body then sweeps far BACK (right) to the trailing base.
-      viewBox 0 0 100 210.
-
-      Front base (leading edge):  x=8,  y=200
-      Sharp tip:                  x=12, y=8    ← nearly above front base!
-      Trailing base:              x=92, y=200  ← far to the right
-
-      Left side (leading edge):  nearly vertical — x goes 8→12 over 192 height
-      Right side (trailing edge): dramatic sweep back — x goes 12→92 over 192 height
-    -->
-    <svg class="fin-svg" viewBox="0 0 100 210" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="fg" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#c8e0ff" stop-opacity="0.95"/>
-          <stop offset="100%" stop-color="#5599dd" stop-opacity="0.85"/>
-        </linearGradient>
-      </defs>
-
-      <!-- Wake ripples at the base -->
-      <ellipse class="fin-wake-ring" cx="5" cy="194" rx="10" ry="2.5"/>
-      <ellipse class="fin-wake-ring" cx="5" cy="194" rx="10" ry="2.5"/>
-      <ellipse class="fin-wake-ring" cx="5" cy="194" rx="10" ry="2.5"/>
-
-      <!--
-        Real dorsal fin shape:
-        - Leading edge curves slightly FORWARD (belly to the left) before sweeping up to tip
-        - Trailing edge sweeps back, then has a concave NOTCH near the base
-        Front base (5,194), tip (18,6), trailing notch base (82,194)
-      -->
-      <path fill="url(#fg)"
-        d="M 5 194
-           C 1 145, 5 75, 18 6
-           C 48 52, 80 128, 90 168
-           C 96 182, 86 192, 82 194
-           Z"/>
-
-      <!-- Highlight on lit leading face -->
-      <path fill="rgba(255,255,255,0.22)"
-        d="M 5 194
-           C 1 145, 5 75, 18 6
-           C 14 30, 11 90, 10 194
-           Z"/>
-
-      <!-- Waterline -->
-      <line x1="0" y1="198" x2="100" y2="198"
-            stroke="rgba(46,123,255,0.5)" stroke-width="1.5"/>
-    </svg>
-  </div>
-</div>
-
 <script>
 // ===================== NAV SCROLL =====================
 const navbar = document.getElementById('navbar');
@@ -1546,18 +1496,22 @@ if (heroEl) waveObserver.observe(heroEl);
 else draw();
 
 // ===================== SHARK FIN SCROLL TRACKER =====================
+// Fin swims left→right as the hero section scrolls past.
+// Progress: 0 = hero top aligned with viewport top; 1 = hero fully scrolled away.
 const finSwimmer = document.getElementById('finSwimmer');
-let finX = -100;
+const finHeroEl = document.querySelector('.hero');
+let finX = -80;
 
 function animateFin() {
-  const docH = document.documentElement.scrollHeight - window.innerHeight;
-  const progress = docH > 0 ? Math.min(1, window.scrollY / docH) : 0;
-  // Swim from -100px (off left) to windowWidth+20px (off right)
-  const targetX = -100 + progress * (window.innerWidth + 120);
-  // Smooth lerp — feels like swimming rather than mechanical
-  finX += (targetX - finX) * 0.07;
-  // Vertical bob via sine on time
-  const bob = Math.sin(Date.now() * 0.0018) * 9;
+  if (finHeroEl) {
+    const r = finHeroEl.getBoundingClientRect();
+    const heroH = finHeroEl.offsetHeight;
+    const scrolled = Math.max(0, -r.top); // px scrolled into hero
+    const progress = Math.min(1, scrolled / heroH);
+    const targetX = -80 + progress * (window.innerWidth + 120);
+    finX += (targetX - finX) * 0.07;
+  }
+  const bob = Math.sin(Date.now() * 0.0018) * 6;
   finSwimmer.style.transform = `translateX(${finX}px) translateY(${bob}px)`;
   requestAnimationFrame(animateFin);
 }
