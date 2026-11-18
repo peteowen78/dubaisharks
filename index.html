@@ -116,6 +116,50 @@ img{max-width:100%;display:block;}
   display:block;
 }
 
+/* ===================== SHARK FIN SCROLL TRACKER ===================== */
+.fin-track{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  height:120px;
+  pointer-events:none;
+  z-index:998;
+  overflow:hidden;
+}
+.fin-swimmer{
+  position:absolute;
+  bottom:0;
+  left:0;
+  width:80px;
+  will-change:transform;
+}
+.fin-svg{
+  width:80px;
+  height:105px;
+  display:block;
+  overflow:visible;
+  filter:drop-shadow(0 -6px 16px rgba(0,85,255,0.5)) drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+}
+.fin-body{fill:rgba(235,243,255,0.93);}
+.fin-highlight{fill:rgba(255,255,255,0.45);}
+.fin-shadow{fill:rgba(180,205,255,0.2);}
+.fin-waterline{stroke:rgba(46,123,255,0.55);stroke-width:1.5;}
+.fin-wake-ring{
+  fill:none;
+  stroke:rgba(46,123,255,0.5);
+  stroke-width:1.2;
+  transform-origin:50% 50%;
+  animation:wake-expand 2.2s ease-out infinite;
+}
+.fin-wake-ring:nth-child(2){animation-delay:.6s;stroke:rgba(46,123,255,0.3);stroke-width:.8;}
+.fin-wake-ring:nth-child(3){animation-delay:1.2s;stroke:rgba(46,123,255,0.15);stroke-width:.6;}
+@keyframes wake-expand{
+  0%{opacity:.9;rx:14;ry:3.5;}
+  100%{opacity:0;rx:28;ry:6;}
+}
+@media(max-width:480px){.fin-track{display:none;}}
+
 /* ===================== NAV ===================== */
 .navbar{
   position:fixed;
@@ -1107,11 +1151,11 @@ img{max-width:100%;display:block;}
         <div class="stat-label">Nearly Two Decades in Dubai</div>
       </div>
       <div class="stat-block">
-        <div class="stat-number">850+</div>
+        <div class="stat-number" data-counter="850" data-suffix="+">850+</div>
         <div class="stat-label">Active Members</div>
       </div>
       <div class="stat-block">
-        <div class="stat-number">45</div>
+        <div class="stat-number" data-counter="45" data-suffix="">45</div>
         <div class="stat-label">Teams, Ages 3–55</div>
       </div>
     </div>
@@ -1322,6 +1366,26 @@ img{max-width:100%;display:block;}
   </div>
 </footer>
 
+<!-- SHARK FIN SCROLL TRACKER -->
+<div class="fin-track" id="finTrack" aria-hidden="true">
+  <div class="fin-swimmer" id="finSwimmer">
+    <svg class="fin-svg" viewBox="0 0 80 105" xmlns="http://www.w3.org/2000/svg">
+      <!-- Wake rings behind fin (left side = trailing wake) -->
+      <ellipse class="fin-wake-ring" cx="18" cy="96" rx="14" ry="3.5"/>
+      <ellipse class="fin-wake-ring" cx="14" cy="96" rx="14" ry="3.5"/>
+      <ellipse class="fin-wake-ring" cx="10" cy="96" rx="14" ry="3.5"/>
+      <!-- Fin shadow on water -->
+      <ellipse class="fin-shadow" cx="40" cy="96" rx="30" ry="6"/>
+      <!-- Fin body — classic dorsal silhouette -->
+      <path class="fin-body" d="M 72 96 C 76 76 78 54 64 20 C 58 8 48 3 40 9 C 24 18 10 52 5 96 Z"/>
+      <!-- Fin leading-edge highlight -->
+      <path class="fin-highlight" d="M 64 20 C 58 8 48 3 40 9 C 48 11 57 24 59 44 Z"/>
+      <!-- Water surface line -->
+      <line class="fin-waterline" x1="0" y1="96" x2="80" y2="96"/>
+    </svg>
+  </div>
+</div>
+
 <script>
 // ===================== NAV SCROLL =====================
 const navbar = document.getElementById('navbar');
@@ -1440,6 +1504,49 @@ const waveObserver = new IntersectionObserver((entries) => {
 }, { rootMargin: '200px' });
 if (heroEl) waveObserver.observe(heroEl);
 else draw();
+
+// ===================== SHARK FIN SCROLL TRACKER =====================
+const finSwimmer = document.getElementById('finSwimmer');
+let finX = -100;
+
+function animateFin() {
+  const docH = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = docH > 0 ? Math.min(1, window.scrollY / docH) : 0;
+  // Swim from -100px (off left) to windowWidth+20px (off right)
+  const targetX = -100 + progress * (window.innerWidth + 120);
+  // Smooth lerp — feels like swimming rather than mechanical
+  finX += (targetX - finX) * 0.07;
+  // Vertical bob via sine on time
+  const bob = Math.sin(Date.now() * 0.0018) * 9;
+  finSwimmer.style.transform = `translateX(${finX}px) translateY(${bob}px)`;
+  requestAnimationFrame(animateFin);
+}
+if (finSwimmer) animateFin();
+
+// ===================== STATS COUNTER =====================
+function runCounter(el) {
+  const target = parseInt(el.dataset.counter, 10);
+  const suffix = el.dataset.suffix || '';
+  const duration = 1800;
+  const start = performance.now();
+  function step(now) {
+    const p = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(eased * target) + suffix;
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+const counterEls = document.querySelectorAll('[data-counter]');
+const counterObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      runCounter(entry.target);
+      counterObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.6 });
+counterEls.forEach(el => counterObserver.observe(el));
 
 // ===================== PARALLAX ON SCROLL =====================
 const introBg = document.querySelector('.intro-bg-text');
